@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gym Tracker</title>
+<style>
+  body { font-family: system-ui, sans-serif; background:#111; color:#eee; margin:0; padding:16px; max-width:500px; margin:auto; }
+  h1 { font-size:22px; }
+  h2 { font-size:16px; margin:20px 0 8px; color:#8ab4ff; }
+  .card { background:#1e1e1e; padding:12px; border-radius:10px; margin-bottom:12px; }
+  select, input, button { font-size:16px; padding:10px; border-radius:8px; border:none; width:100%; box-sizing:border-box; margin-top:8px; }
+  select, input { background:#2a2a2a; color:#eee; }
+  button { background:#3b82f6; color:white; cursor:pointer; }
+  button.small { width:auto; padding:4px 10px; background:#444; margin:0; }
+  .row { display:flex; gap:8px; }
+  .set { display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid #333; }
+  .muted { color:#999; font-size:14px; }
+  .best { color:#facc15; }
+</style>
+</head>
+<body>
+  <h1>🏋️ Gym Tracker</h1>
+  <div class="muted" id="today"></div>
+
+  <div class="card">
+    <select id="exercise"></select>
+    <div class="row">
+      <input id="newEx" placeholder="Add new exercise/machine">
+      <button id="addEx" style="width:90px">Add</button>
+    </div>
+  </div>
+
+  <h2>Last record</h2>
+  <div class="card" id="last"></div>
+
+  <h2>Log a set</h2>
+  <div class="card">
+    <div class="row">
+      <input id="weight" type="number" step="0.5" placeholder="Weight (kg)">
+      <input id="reps" type="number" placeholder="Reps">
+    </div>
+    <button id="addSet">Add set</button>
+  </div>
+
+  <h2>Today's sets</h2>
+  <div class="card" id="todaySets"></div>
+
+  <h2>History</h2>
+  <div id="history"></div>
+
+<script>
+const defaults = ["Bench Press","Squat","Deadlift","Overhead Press","Lat Pulldown",
+                  "Leg Press Machine","Chest Fly Machine","Bicep Curl","Tricep Pushdown"];
+let exercises = JSON.parse(localStorage.getItem("gymExercises") || "null") || defaults;
+let logs = JSON.parse(localStorage.getItem("gymLogs") || "[]");
+const today = new Date().toLocaleDateString("en-CA"); // YYYY-MM-DD in local time
+
+const $ = id => document.getElementById(id);
+const save = () => {
+  localStorage.setItem("gymExercises", JSON.stringify(exercises));
+  localStorage.setItem("gymLogs", JSON.stringify(logs));
+};
+const esc = s => s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function renderSelect() {
+  const current = $("exercise").value;
+  $("exercise").innerHTML = exercises.map(e => `<option>${esc(e)}</option>`).join("");
+  if (exercises.includes(current)) $("exercise").value = current;
+}
+
+function renderLast() {
+  const ex = $("exercise").value;
+  const past = logs.filter(l => l.exercise === ex && l.date !== today);
+  if (!past.length) { $("last").innerHTML = '<span class="muted">No previous record yet.</span>'; return; }
+  const lastDate = past.map(l => l.date).sort().pop();
+  const sets = past.filter(l => l.date === lastDate);
+  const best = Math.max(...past.map(l => l.weight));
+  $("last").innerHTML =
+    `<div class="muted">${lastDate}</div>` +
+    sets.map((s,i) => `<div>Set ${i+1}: <b>${s.weight} kg × ${s.reps}</b></div>`).join("") +
+    `<div class="best" style="margin-top:8px">🏆 Best ever: ${best} kg</div>`;
+}
+
+function renderToday() {
+  const sets = logs.filter(l => l.date === today);
+  $("todaySets").innerHTML = sets.length ? sets.map(s => `
+    <div class="set"><span>${esc(s.exercise)}: <b>${s.weight} kg × ${s.reps}</b></span>
+    <button class="small" onclick="delSet(${s.id})">✕</button></div>`).join("")
+    : '<span class="muted">Nothing logged yet today.</span>';
+}
+
+function renderHistory() {
+  const dates = [...new Set(logs.map(l => l.date))].sort().reverse();
+  $("history").innerHTML = dates.map(d => {
+    const items = logs.filter(l => l.date === d);
+    const byEx = {};
+    items.forEach(s => (byEx[s.exercise] = byEx[s.exercise] || []).push(s));
+    return `<div class="card"><b>${d}</b>` + Object.entries(byEx).map(([ex, ss]) =>
+      `<div style="margin-top:6px">${esc(ex)}<br><span class="muted">${ss.map(s => `${s.weight}×${s.reps}`).join(", ")}</span></div>`
+    ).join("") + `</div>`;
+  }).join("");
+}
+
+function renderAll() { renderSelect(); renderLast(); renderToday(); renderHistory(); }
+
+function delSet(id) { logs = logs.filter(l => l.id !== id); save(); renderAll(); }
+
+$("addEx").onclick = () => {
+  const name = $("newEx").value.trim();
+  if (!name || exercises.includes(name)) return;
+  exercises.push(name); save(); $("newEx").value = "";
+  renderSelect(); $("exercise").value = name; renderLast();
+};
+
+$("addSet").onclick = () => {
+  const weight = parseFloat($("weight").value), reps = parseInt($("reps").value);
+  if (isNaN(weight) || isNaN(reps)) return alert("Enter weight and reps");
+  logs.push({ id: Date.now(), date: today, exercise: $("exercise").value, weight, reps });
+  save(); $("reps").value = ""; renderAll();
+};
+
+$("exercise").onchange = renderLast;
+$("today").textContent = today;
+renderAll();
+</script>
+</body>
+</html>
