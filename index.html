@@ -11,7 +11,8 @@
 body{margin:0 auto;padding:16px;max-width:520px;min-height:100vh;font-family:system-ui,sans-serif;font-size:var(--fs);color:var(--text);background:linear-gradient(#0f172a,#111827)}
 h1{font-size:1.3em;margin:0}
 h2{font-size:1em;margin:22px 0 8px;color:#93c5fd;text-transform:uppercase;letter-spacing:.05em}
-.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.tools{display:flex;gap:6px;flex-wrap:wrap}
 .card{background:var(--card);padding:14px;border-radius:16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.25)}
 .muted{color:var(--muted);font-size:.9em}
 select,input,button{font-size:var(--fs);padding:12px;border-radius:12px;border:none;width:100%;margin-top:8px;font-family:inherit}
@@ -19,6 +20,7 @@ select,input{background:var(--card2);color:var(--text)}
 button{background:var(--blue);color:#fff;font-weight:600;cursor:pointer}
 button:active{transform:scale(.97)}
 button.green{background:var(--green);color:#052e16}
+button.tool{width:auto;margin:0;padding:8px 12px;background:var(--card2);font-size:.9em;font-weight:600}
 button.icon{width:auto;padding:8px 14px;margin:0 0 0 6px;background:var(--card2)}
 button.ghost{background:var(--card2);font-weight:500}
 .row{display:flex;gap:8px}
@@ -49,18 +51,25 @@ button.ghost{background:var(--card2);font-weight:500}
 @keyframes pop{from{transform:scale(.9);opacity:0}}
 .del{width:auto;padding:4px 12px;margin:0;background:#475569}
 .hist b{color:#cbd5e1}
+#guide{position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;padding:16px;z-index:10}
+#guide .box{background:var(--card);border-radius:20px;padding:20px;max-width:420px;width:100%}
+#guide ol{padding-left:20px;line-height:1.6}
 </style>
 </head>
 <body>
 <div class="top">
-  <h1>🏋️ Gym Tracker</h1>
-  <button class="icon" id="fsBtn" title="Text size">Aa</button>
+  <h1 id="appTitle">🏋️</h1>
+  <div class="tools">
+    <button class="tool" id="helpBtn">❓ ?</button>
+    <button class="tool" id="langBtn">🌐</button>
+    <button class="tool" id="fsBtn">🔍</button>
+  </div>
 </div>
 
 <div class="card hero">
   <div class="flame" id="flame">🔥</div>
-  <div><div class="big" id="streakNum">0</div><div class="muted">week streak</div></div>
-  <div class="total"><b id="totalDays">0</b><span class="muted">workout days</span></div>
+  <div><div class="big" id="streakNum">0</div><div class="muted" data-i18n="streakLabel"></div></div>
+  <div class="total"><b id="totalDays">0</b><span class="muted" data-i18n="workoutDays"></span></div>
 </div>
 
 <div class="card">
@@ -73,54 +82,126 @@ button.ghost{background:var(--card2);font-weight:500}
   <div class="muted" id="hello" style="margin-top:8px"></div>
 </div>
 
-<h2>Exercise</h2>
+<h2 data-i18n="exercise"></h2>
 <div class="card">
   <select id="exercise"></select>
   <div class="row">
-    <input id="newEx" placeholder="Add your own exercise">
-    <button id="addEx" class="ghost" style="width:90px">Add</button>
+    <input id="newEx" data-ph="addOwnPh">
+    <button id="addEx" class="ghost" style="width:90px" data-i18n="add"></button>
   </div>
 </div>
 
-<h2>Last time</h2>
+<h2 data-i18n="lastTime"></h2>
 <div class="card" id="last"></div>
 
-<h2>Log a set</h2>
+<h2 data-i18n="logSet"></h2>
 <div class="card">
   <div class="row">
-    <input id="weight" type="number" inputmode="decimal" step="0.5" placeholder="Weight kg (empty = bodyweight)">
-    <input id="reps" type="number" inputmode="numeric" placeholder="Reps / minutes">
+    <input id="weight" type="number" inputmode="decimal" step="0.5" data-ph="weightPh">
+    <input id="reps" type="number" inputmode="numeric" data-ph="repsPh">
   </div>
-  <button id="addSet" class="green">Add set</button>
+  <button id="addSet" class="green" data-i18n="addSet"></button>
 </div>
 <div class="card msg" id="msg"></div>
 
-<h2>Today</h2>
+<h2 data-i18n="today"></h2>
 <div class="card" id="todaySets"></div>
 
-<h2>History</h2>
+<h2 data-i18n="history"></h2>
 <div id="history" class="hist"></div>
 
-<h2>Backup</h2>
+<h2 data-i18n="backup"></h2>
 <div class="card">
-  <div class="muted">Your data lives only on this phone. Save a backup now and then.</div>
+  <div class="muted" data-i18n="backupNote"></div>
   <div class="row">
-    <button class="ghost" id="exportBtn">Export</button>
-    <button class="ghost" id="importBtn">Import</button>
+    <button class="ghost" id="exportBtn" data-i18n="export"></button>
+    <button class="ghost" id="importBtn" data-i18n="import"></button>
   </div>
   <input type="file" id="importFile" accept=".json" hidden>
 </div>
 
+<div id="guide">
+  <div class="box">
+    <h2 style="margin-top:0" data-i18n="guideTitle"></h2>
+    <ol>
+      <li data-i18n="guide1"></li>
+      <li data-i18n="guide2"></li>
+      <li data-i18n="guide3"></li>
+      <li data-i18n="guide4"></li>
+    </ol>
+    <button class="green" id="guideOk" data-i18n="guideBtn"></button>
+  </div>
+</div>
+
 <script>
+/* ===== Change the app name here ===== */
+const APP_NAME = "Gym Tracker";
+
 const LIB = {
-  "💪 Chest": ["Bench Press","Incline Dumbbell Press","Chest Press Machine","Chest Fly Machine","Push-ups","Cable Crossover"],
-  "🧗 Back": ["Lat Pulldown","Seated Cable Row","Barbell Row","Pull-ups","Deadlift","Back Extension"],
-  "🦵 Legs": ["Squat","Leg Press Machine","Leg Extension Machine","Leg Curl Machine","Lunges","Romanian Deadlift","Calf Raise","Hip Thrust"],
-  "🏔️ Shoulders": ["Overhead Press","Lateral Raise","Shoulder Press Machine","Face Pull","Rear Delt Fly"],
-  "💥 Arms": ["Bicep Curl","Hammer Curl","Tricep Pushdown","Skull Crusher","Dips"],
-  "🎯 Core": ["Plank","Crunches","Leg Raises","Russian Twist","Cable Crunch"],
-  "🏃 Cardio": ["Treadmill","Stationary Bike","Rowing Machine","Elliptical","Walking"],
-  "🌿 Easy & Balance": ["Chair Squat (sit-to-stand)","Wall Push-up","Seated Leg Raise","Step-ups","Resistance Band Row","Balance Stand","Seated Marching"]
+  "chest": ["Bench Press","Incline Dumbbell Press","Chest Press Machine","Chest Fly Machine","Push-ups","Cable Crossover"],
+  "back": ["Lat Pulldown","Seated Cable Row","Barbell Row","Pull-ups","Deadlift","Back Extension"],
+  "legs": ["Squat","Leg Press Machine","Leg Extension Machine","Leg Curl Machine","Lunges","Romanian Deadlift","Calf Raise","Hip Thrust"],
+  "shoulders": ["Overhead Press","Lateral Raise","Shoulder Press Machine","Face Pull","Rear Delt Fly"],
+  "arms": ["Bicep Curl","Hammer Curl","Tricep Pushdown","Skull Crusher","Dips"],
+  "core": ["Plank","Crunches","Leg Raises","Russian Twist","Cable Crunch"],
+  "cardio": ["Treadmill","Stationary Bike","Rowing Machine","Elliptical","Walking"],
+  "easy": ["Chair Squat (sit-to-stand)","Wall Push-up","Seated Leg Raise","Step-ups","Resistance Band Row","Balance Stand","Seated Marching"]
+};
+
+const FI = {
+  "Bench Press":"Penkkipunnerrus","Incline Dumbbell Press":"Vinoon käsipainopunnerrus","Chest Press Machine":"Rintapunnerruslaite","Chest Fly Machine":"Rintaperhoslaite","Push-ups":"Punnerrus","Cable Crossover":"Kaapeliristikkö",
+  "Lat Pulldown":"Ylävetolaite","Seated Cable Row":"Istuva kaapelisoutu","Barbell Row":"Tankosoutu","Pull-ups":"Leuanveto","Deadlift":"Maastaveto","Back Extension":"Selkäojennus",
+  "Squat":"Kyykky","Leg Press Machine":"Jalkaprässi","Leg Extension Machine":"Reisiojennus","Leg Curl Machine":"Reisikoukistus","Lunges":"Askelkyykky","Romanian Deadlift":"Romanialainen maastaveto","Calf Raise":"Pohkeennosto","Hip Thrust":"Lantionnosto",
+  "Overhead Press":"Pystypunnerrus","Lateral Raise":"Sivunosto","Shoulder Press Machine":"Olkapunnerruslaite","Face Pull":"Face pull","Rear Delt Fly":"Takaolkaperhonen",
+  "Bicep Curl":"Hauiskääntö","Hammer Curl":"Vasarakääntö","Tricep Pushdown":"Ojentajan kaapelivienti","Skull Crusher":"Ranskalainen ojennus","Dips":"Dipit",
+  "Plank":"Lankku","Crunches":"Vatsarutistus","Leg Raises":"Jalkojennostot","Russian Twist":"Venäläinen kierto","Cable Crunch":"Kaapelivatsa",
+  "Treadmill":"Juoksumatto","Stationary Bike":"Kuntopyörä","Rowing Machine":"Soutulaite","Elliptical":"Ellipsitrainer","Walking":"Kävely",
+  "Chair Squat (sit-to-stand)":"Tuolikyykky (nousu istumasta)","Wall Push-up":"Seinäpunnerrus","Seated Leg Raise":"Istuva jalannosto","Step-ups":"Askelnousu","Resistance Band Row":"Vastusnauhasoutu","Balance Stand":"Tasapainoseisonta","Seated Marching":"Istuva marssi"
+};
+
+const T = {
+en: {
+  streakLabel:"week streak", workoutDays:"workout days", exercise:"Exercise", addOwnPh:"Add your own exercise", add:"Add",
+  lastTime:"Last time", firstTime:"First time with this one. Whatever you do today becomes the number to beat! 🌱",
+  yesterday:"yesterday", daysAgo:"{n} days ago", heaviest:"🏆 Heaviest ever: {w} kg", beatIt:"Can you beat it today? 💪",
+  logSet:"Log a set", weightPh:"Weight kg (empty = bodyweight)", repsPh:"Reps / minutes", addSet:"Add set",
+  today:"Today", todayEmpty:"Nothing logged yet today.", history:"History", historyEmpty:"Your workouts will show up here.",
+  backup:"Backup", backupNote:"Your data lives only on this phone. Save a backup now and then.", export:"Export", import:"Import",
+  goalText:"Goal: {g} workouts / week ({n}/{g})", startHello:"Start today. One set is enough to begin 💪",
+  goalDone:"🎉 Weekly goal reached! Anything extra is a bonus.", leftHello:"{n} more workout(s) this week to keep your streak going.",
+  myEx:"⭐ My exercises", days:["M","T","W","T","F","S","S"],
+  guideTitle:"Welcome! 👋", guide1:"Pick an exercise. Your last session shows below.", guide2:"Enter weight and reps, then tap Add set.",
+  guide3:"Hit your weekly goal to grow your 🔥 streak. Rest days don't break it.", guide4:"Tap 🔍 for bigger text, 🌐 to change language, ❓ to see this again.",
+  guideBtn:"Let's go!", langToggle:"🌐 Suomi", textBig:"🔍 Normal", textNormal:"🔍 Large",
+  first:["Great start! This is your baseline. Next time we beat it 🌱","First entry saved. Every journey starts with one set 🚀"],
+  record:"🏆 NEW PERSONAL RECORD! {w} kg is your heaviest ever.", up:"💪 +{d} kg more than last time. You're getting stronger!",
+  reps:"🔥 Same weight, +{d} more rep(s). That's progress!", matched:"✅ You matched last time.", matchedTips:["Consistency builds strength.","Solid and steady!","Strong foundations."],
+  easyTips:["A lighter day is fine. Showing up is what counts.","Listening to your body is smart training.","Every session counts, even the easy ones."],
+  lastLine:"Last time: {s}.", weekReached:"🎉 Weekly goal reached! Streak: {s}!", dayLogged:"🔥 Workout day logged!",
+  needReps:"Please enter reps (or minutes).", replaceQ:"Replace current data with this backup?", badFile:"That file isn't a valid backup.",
+  bodyweight:"Bodyweight", kg:"kg"
+},
+fi: {
+  streakLabel:"viikon putki", workoutDays:"treenipäivää", exercise:"Liike", addOwnPh:"Lisää oma liike", add:"Lisää",
+  lastTime:"Viimeksi", firstTime:"Ensimmäinen kerta tällä liikkeellä. Tämän päivän suoritus on tulevan lyöntitavoite! 🌱",
+  yesterday:"eilen", daysAgo:"{n} päivää sitten", heaviest:"🏆 Ennätys: {w} kg", beatIt:"Pystytkö parempaan tänään? 💪",
+  logSet:"Kirjaa sarja", weightPh:"Paino kg (tyhjä = oma paino)", repsPh:"Toistot / minuutit", addSet:"Tallenna sarja",
+  today:"Tänään", todayEmpty:"Ei kirjauksia vielä tänään.", history:"Historia", historyEmpty:"Treenisi näkyvät täällä.",
+  backup:"Varmuuskopio", backupNote:"Tiedot ovat vain tällä puhelimella. Tallenna varmuuskopio silloin tällöin.", export:"Vie", import:"Tuo",
+  goalText:"Tavoite: {g} treeniä / viikko ({n}/{g})", startHello:"Aloita tänään. Yksi sarja riittää alkuun 💪",
+  goalDone:"🎉 Viikkotavoite täynnä! Kaikki lisä on bonusta.", leftHello:"Vielä {n} treeni tällä viikolla putken jatkamiseksi.",
+  myEx:"⭐ Omat liikkeet", days:["Ma","Ti","Ke","To","Pe","La","Su"],
+  guideTitle:"Tervetuloa! 👋", guide1:"Valitse liike. Viimeisin kerta näkyy alla.", guide2:"Syötä paino ja toistot ja paina Tallenna sarja.",
+  guide3:"Saavuta viikkotavoite, niin 🔥 putki kasvaa. Lepopäivät eivät katkaise sitä.", guide4:"🔍 suurentaa tekstiä, 🌐 vaihtaa kielen, ❓ näyttää tämän ohjeen uudelleen.",
+  guideBtn:"Aloitetaan!", langToggle:"🌐 English", textBig:"🔍 Normaali", textNormal:"🔍 Suuri",
+  first:["Hyvä alku! Tämä on lähtötasosi. Seuraavalla kerralla lyödään se 🌱","Ensimmäinen merkintä tallennettu. Jokainen matka alkaa yhdestä sarjasta 🚀"],
+  record:"🏆 UUSI ENNÄYS! {w} kg on raskain ennätyksesi.", up:"💪 +{d} kg enemmän kuin viimeksi. Olet vahvistumassa!",
+  reps:"🔥 Sama paino, +{d} toistoa enemmän. Se on edistystä!", matched:"✅ Toistit viimeksi tehdyn.", matchedTips:["Johdonmukaisuus kasvattaa voimaa.","Vakaa suoritus!","Hyvä perusta."],
+  easyTips:["Kevyt päivä on ihan ok. Tärkeintä on tulla paikalle.","Kehon kuunteleminen on fiksua harjoittelua.","Jokainen treeni lasketaan, myös helpot."],
+  lastLine:"Viimeksi: {s}.", weekReached:"🎉 Viikkotavoite täynnä! Putki: {s}!", dayLogged:"🔥 Treenipäivä kirjattu!",
+  needReps:"Syötä toistot (tai minuutit).", replaceQ:"Korvataanko nykyiset tiedot tällä varmuuskopiolla?", badFile:"Tämä tiedosto ei ole kelvollinen varmuuskopio.",
+  bodyweight:"Oma paino", kg:"kg"
+}
 };
 
 const $ = id => document.getElementById(id);
@@ -133,9 +214,20 @@ const pick = a => a[Math.floor(Math.random() * a.length)];
 
 let logs = load("gymLogs", []);
 let custom = load("gymCustom", []);
-let settings = Object.assign({ goal: 3, big: false }, load("gymSettings", {}));
+let settings = Object.assign({ goal: 3, big: false, lang: "en" }, load("gymSettings", {}));
+let lang = settings.lang === "fi" ? "fi" : "en";
+
+const t = (k, v = {}) => {
+  let s = (T[lang][k] ?? T.en[k] ?? k);
+  if (typeof s === "string") Object.entries(v).forEach(([a, b]) => s = s.replace("{" + a + "}", b));
+  return s;
+};
+const exName = n => (lang === "fi" && FI[n]) ? FI[n] : n;
+const grpName = g => ({chest:"💪 Rinta",back:"🧗 Selkä",legs:"🦵 Jalat",shoulders:"🏔️ Olkapäät",arms:"💥 Kädet",core:"🎯 Keskivartalo",cardio:"🏃 Kestävyys",easy:"🌿 Helppo & tasapaino"})[g] ||g;
+const grpLabel = g => lang === "fi" ? grpName(g) : ({chest:"💪 Chest",back:"🧗 Back",legs:"🦵 Legs",shoulders:"🏔️ Shoulders",arms:"💥 Arms",core:"🎯 Core",cardio:"🏃 Cardio",easy:"🌿 Easy & Balance"})[g];
 
 const save = () => {
+  settings.lang = lang;
   localStorage.setItem("gymLogs", JSON.stringify(logs));
   localStorage.setItem("gymCustom", JSON.stringify(custom));
   localStorage.setItem("gymSettings", JSON.stringify(settings));
@@ -143,7 +235,6 @@ const save = () => {
 const builtIn = Object.values(LIB).flat();
 const allNames = () => [...custom, ...builtIn];
 
-// Keep exercises from the older version
 const oldList = load("gymExercises", null);
 if (Array.isArray(oldList)) {
   oldList.forEach(n => { if (!allNames().includes(n)) custom.push(n); });
@@ -151,7 +242,7 @@ if (Array.isArray(oldList)) {
   save();
 }
 
-const setTxt = s => (s.weight > 0 ? s.weight + " kg" : "Bodyweight") + " × " + s.reps;
+const setTxt = s => (s.weight > 0 ? s.weight + " " + t("kg") : t("bodyweight")) + " × " + s.reps;
 
 function monday(d) {
   const x = new Date(d);
@@ -179,25 +270,26 @@ function renderStreak() {
   $("flame").className = "flame" + (streak > 0 ? " on" : "");
   $("totalDays").textContent = days.size;
   const mon = monday(new Date());
-  $("week").innerHTML = ["M","T","W","T","F","S","S"].map((n, i) => {
+  const names = T[lang].days;
+  $("week").innerHTML = names.map((n, i) => {
     const d = new Date(mon); d.setDate(mon.getDate() + i);
     const k = fmt(d), done = days.has(k);
     return `<div class="day ${done ? "done" : ""} ${k === today ? "now" : ""}"><span>${done ? "✓" : ""}</span><small>${n}</small></div>`;
   }).join("");
-  $("goalText").textContent = `Goal: ${g} workouts / week (${Math.min(thisWeek, g)}/${g})`;
+  $("goalText").textContent = t("goalText", { g, n: Math.min(thisWeek, g) });
   $("bar").style.width = Math.min(100, thisWeek / g * 100) + "%";
   const left = g - thisWeek;
   $("hello").textContent =
-    thisWeek >= g ? "🎉 Weekly goal reached! Anything extra is a bonus." :
-    thisWeek === 0 ? "Start today. One set is enough to begin 💪" :
-    `${left} more workout${left > 1 ? "s" : ""} this week to ${streak ? "grow" : "start"} your streak.`;
+    thisWeek >= g ? t("goalDone") :
+    thisWeek === 0 ? t("startHello") :
+    t("leftHello", { n: left });
 }
 
 function renderSelect() {
   const cur = $("exercise").value;
-  const opts = a => a.map(e => `<option>${esc(e)}</option>`).join("");
-  let h = Object.entries(LIB).map(([g, a]) => `<optgroup label="${g}">${opts(a)}</optgroup>`).join("");
-  if (custom.length) h = `<optgroup label="⭐ My exercises">${opts(custom)}</optgroup>` + h;
+  const opts = a => a.map(e => `<option value="${esc(e)}">${esc(exName(e))}</option>`).join("");
+  let h = Object.entries(LIB).map(([g, a]) => `<optgroup label="${grpLabel(g)}">${opts(a)}</optgroup>`).join("");
+  if (custom.length) h = `<optgroup label="${t("myEx")}">${opts(custom)}</optgroup>` + h;
   $("exercise").innerHTML = h;
   if (cur && allNames().includes(cur)) $("exercise").value = cur;
 }
@@ -212,16 +304,16 @@ function lastSession(ex) {
 function renderLast() {
   const ex = $("exercise").value, p = lastSession(ex);
   if (!p) {
-    $("last").innerHTML = '<span class="muted">First time with this one. Whatever you do today becomes the number to beat! 🌱</span>';
+    $("last").innerHTML = `<span class="muted">${t("firstTime")}</span>`;
     return;
   }
   const ago = Math.round((parse(today) - parse(p.date)) / 864e5);
   const best = Math.max(...logs.filter(l => l.exercise === ex && l.date !== today).map(l => l.weight));
   $("last").innerHTML =
-    `<div class="muted">${p.date} · ${ago === 1 ? "yesterday" : ago + " days ago"}</div>` +
-    p.sets.map((s, i) => `<div class="line"><span>Set ${i + 1}</span><b>${setTxt(s)}</b></div>`).join("") +
-    (best > 0 ? `<div class="best">🏆 Heaviest ever: ${best} kg</div>` : "") +
-    `<div class="beat">Can you beat it today? 💪</div>`;
+    `<div class="muted">${p.date} · ${ago === 1 ? t("yesterday") : t("daysAgo", { n: ago })}</div>` +
+    p.sets.map((s, i) => `<div class="line"><span>${i + 1}</span><b>${setTxt(s)}</b></div>`).join("") +
+    (best > 0 ? `<div class="best">${t("heaviest", { w: best })}</div>` : "") +
+    `<div class="beat">${t("beatIt")}</div>`;
 }
 
 function prefill() {
@@ -235,8 +327,8 @@ function prefill() {
 function renderToday() {
   const sets = logs.filter(l => l.date === today);
   $("todaySets").innerHTML = sets.length
-    ? sets.map(s => `<div class="line"><span>${esc(s.exercise)}: <b>${setTxt(s)}</b></span><button class="del" data-id="${s.id}">✕</button></div>`).join("")
-    : '<span class="muted">Nothing logged yet today.</span>';
+    ? sets.map(s => `<div class="line"><span>${esc(exName(s.exercise))}: <b>${setTxt(s)}</b></span><button class="del" data-id="${s.id}">✕</button></div>`).join("")
+    : `<span class="muted">${t("todayEmpty")}</span>`;
 }
 
 function renderHistory() {
@@ -245,110 +337,18 @@ function renderHistory() {
     const byEx = {};
     logs.filter(l => l.date === d).forEach(s => (byEx[s.exercise] = byEx[s.exercise] || []).push(s));
     return `<div class="card"><b>${d}</b>` + Object.entries(byEx).map(([ex, ss]) =>
-      `<div style="margin-top:6px">${esc(ex)}<br><span class="muted">${ss.map(s => `${s.weight}×${s.reps}`).join(", ")}</span></div>`).join("") + `</div>`;
-  }).join("") || '<div class="card muted">Your workouts will show up here.</div>';
+      `<div style="margin-top:6px">${esc(exName(ex))}<br><span class="muted">${ss.map(s => `${s.weight}×${s.reps}`).join(", ")}</span></div>`).join("") + `</div>`;
+  }).join("") || `<div class="card muted">${t("historyEmpty")}</div>`;
 }
 
 function renderAll() { renderStreak(); renderLast(); renderToday(); renderHistory(); }
 
 function feedback(w, r, prev, bestBefore) {
-  if (!prev) return { type: "up", text: pick([
-    "Great start! This is your baseline. Next time we beat it 🌱",
-    "First entry saved. Every journey starts with one set 🚀"]) };
+  if (!prev) return { type: "up", text: pick(T[lang].first) };
   const top = prev.sets.reduce((a, b) => (b.weight > a.weight || (b.weight === a.weight && b.reps > a.reps)) ? b : a);
-  const topTxt = `Last time: ${setTxt(top)}.`;
+  const topTxt = t("lastLine", { s: setTxt(top) });
   if (w > bestBefore && bestBefore > 0)
-    return { type: "record", text: `🏆 NEW PERSONAL RECORD! ${w} kg is your heaviest ever. ${topTxt}` };
+    return { type: "record", text: `${t("record", { w })} ${topTxt}` };
   if (w > top.weight)
-    return { type: "up", text: `💪 +${+(w - top.weight).toFixed(2)} kg more than last time. You're getting stronger! ${topTxt}` };
-  if (w === top.weight && r > top.reps)
-    return { type: "up", text: `🔥 Same weight, +${r - top.reps} more rep${r - top.reps > 1 ? "s" : ""}. That's progress! ${topTxt}` };
-  if (w === top.weight && r === top.reps)
-    return { type: "same", text: `✅ You matched last time. ${pick(["Consistency builds strength.", "Solid and steady!", "Strong foundations."])} ${topTxt}` };
-  return { type: "easy", text: `💚 ${pick(["A lighter day is fine. Showing up is what counts.", "Listening to your body is smart training.", "Every session counts, even the easy ones."])} ${topTxt}` };
-}
-
-function showMsg(m) {
-  const el = $("msg");
-  el.className = "card msg " + m.type;
-  el.style.display = "block";
-  el.textContent = m.text;
-}
-
-$("addSet").onclick = () => {
-  const ex = $("exercise").value;
-  const w = parseFloat($("weight").value) || 0;
-  const r = parseInt($("reps").value);
-  if (!(r > 0)) return alert("Please enter reps (or minutes).");
-  const prev = lastSession(ex);
-  const bestBefore = Math.max(0, ...logs.filter(l => l.exercise === ex).map(l => l.weight));
-  const before = calcStreak();
-  logs.push({ id: Date.now(), date: today, exercise: ex, weight: w, reps: r });
-  save();
-  const after = calcStreak();
-  const m = feedback(w, r, prev, bestBefore);
-  if (before.thisWeek < settings.goal && after.thisWeek >= settings.goal)
-    m.text += ` 🎉 Weekly goal reached! Streak: ${after.streak}!`;
-  else if (before.days.size < after.days.size)
-    m.text += " 🔥 Workout day logged!";
-  showMsg(m);
-  renderAll();
-  prefill();
-};
-
-$("todaySets").onclick = e => {
-  const id = e.target.dataset.id;
-  if (!id) return;
-  logs = logs.filter(l => String(l.id) !== id);
-  save(); renderAll(); prefill();
-};
-
-$("addEx").onclick = () => {
-  const name = $("newEx").value.trim();
-  if (!name || allNames().some(n => n.toLowerCase() === name.toLowerCase())) return;
-  custom.push(name); save();
-  $("newEx").value = "";
-  renderSelect(); $("exercise").value = name; renderLast(); prefill();
-};
-
-$("exercise").onchange = () => { $("msg").style.display = "none"; renderLast(); prefill(); };
-
-$("goalMinus").onclick = () => { settings.goal = Math.max(1, settings.goal - 1); save(); renderStreak(); };
-$("goalPlus").onclick = () => { settings.goal = Math.min(7, settings.goal + 1); save(); renderStreak(); };
-
-function applyFont() { document.documentElement.style.setProperty("--fs", settings.big ? "20px" : "16px"); }
-$("fsBtn").onclick = () => { settings.big = !settings.big; save(); applyFont(); };
-
-$("exportBtn").onclick = () => {
-  const blob = new Blob([JSON.stringify({ logs, custom, settings })], { type: "application/json" });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "gym-backup-" + today + ".json";
-  a.click();
-};
-$("importBtn").onclick = () => $("importFile").click();
-$("importFile").onchange = e => {
-  const f = e.target.files[0];
-  if (!f) return;
-  const rd = new FileReader();
-  rd.onload = () => {
-    try {
-      const d = JSON.parse(rd.result);
-      if (!Array.isArray(d.logs)) throw 0;
-      if (!confirm("Replace current data with this backup?")) return;
-      logs = d.logs;
-      custom = Array.isArray(d.custom) ? d.custom : [];
-      settings = Object.assign(settings, d.settings || {});
-      save(); applyFont(); renderSelect(); renderAll(); prefill();
-    } catch (err) { alert("That file isn't a valid backup."); }
-  };
-  rd.readAsText(f);
-};
-
-applyFont();
-renderSelect();
-renderAll();
-prefill();
-</script>
-</body>
-</html>
+    return { type: "up", text: `${t("up", { d: +(w - top.weight).toFixed(2) })} ${topTxt}` };
+  if (w === top.weight && r > 
